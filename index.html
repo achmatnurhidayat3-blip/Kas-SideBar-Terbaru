@@ -166,15 +166,23 @@ function simpanData() {
             element.value = rupiah;
         }
 
-       async function updateDashboard() {
-    const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbyzRpXilti4ohQp4s1NRCBG0_46O9EapEwfWSbqrHzWX_AFT1yw6Re_aIessZanWvUS_w/exec"; 
+      async function updateDashboard() {
+    const URL_WEB_APP = "URL_APPS_SCRIPT_ANDA"; // Pastikan URL ini benar
+    const elements = ['saldoCash', 'saldoBRI', 'saldoBNI', 'totalPemasukan', 'totalPengeluaran', 'totalKeuntungan', 'totalPiutang'];
+    
     try {
+        console.log("Mulai mengambil data...");
         const res = await fetch(URL_WEB_APP);
+        
+        if (!res.ok) throw new Error("Gagal terhubung ke server");
+        
         const data = await res.json();
-        const d = data[0]; // data[0] sekarang punya 7 elemen
-
+        console.log("Data diterima:", data);
+        
+        const d = data[0]; 
         const format = (val) => "Rp " + Number(val || 0).toLocaleString('id-ID');
 
+        // Update tampilan
         document.getElementById('saldoCash').innerText = format(d[0]);
         document.getElementById('saldoBRI').innerText = format(d[1]);
         document.getElementById('saldoBNI').innerText = format(d[2]);
@@ -183,7 +191,11 @@ function simpanData() {
         document.getElementById('totalKeuntungan').innerText = format(d[5]);
         document.getElementById('totalPiutang').innerText = format(d[6]);
         
-    } catch(e) { console.error("Gagal memuat data:", e); }
+    } catch(e) { 
+        console.error("Error pada updateDashboard:", e);
+        // Jika gagal, ubah status "Memuat..." menjadi "Gagal"
+        elements.forEach(id => document.getElementById(id).innerText = "Gagal");
+    }
 }
         window.onload = updateDashboard;
 
