@@ -37,6 +37,11 @@
                 padding: 40px !important; 
                 margin: 0 auto !important;
                 box-sizing: border-box !important; 
+                border-collapse: collapse !important;
+            }
+            #print-area tr {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
         }
     </style>
@@ -44,7 +49,7 @@
 <body class="bg-slate-100 flex flex-col lg:flex-row text-slate-700">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyi7Lv6xARvft0VCdrXQd5rTACoRtMzx_xEZMjjc2zsGSPr22H7cnV0Dcdm8euYFgTxhw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzN9evcvL1rCQUlomrLdgbJlfrEg6sjyiXLzs_hwOaCr4IZGFyyzftXyExqqSUk_L4L/exec";
         const LOGO_URL = "https://lh3.googleusercontent.com/d/1F055wulsiC-LDjW_NMZ4yXsMSCDj53TW"; 
     </script>
 
@@ -124,7 +129,7 @@
                     <div>
                         <label class="block text-sm font-semibold text-slate-600 mb-2">Daftar Item Pemesanan</label>
                         <div id="items-container" class="space-y-4">
-                            <div class="item-row grid grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <div class="item-row grid grid-cols-1 md:grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <input type="text" placeholder="Nama Barang" class="item-name p-3 rounded-xl border outline-none">
                                 <input type="text" placeholder="Qty" class="qty p-3 rounded-xl border outline-none" oninput="formatInputRupiah(this); hitungTotal()">
                                 <input type="text" placeholder="Harga" class="price p-3 rounded-xl border outline-none" oninput="formatInputRupiah(this); hitungTotal()">
@@ -369,8 +374,9 @@
         <div class="border border-slate-200 rounded-xl overflow-hidden mb-6">
             <table class="w-full text-left text-xs border-collapse">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
-                        <th class="p-3">Deskripsi Pesanan</th>
+                    <!-- Mengubah latar header nota menjadi biru cerah berkelas -->
+                    <tr class="bg-blue-600 text-white border-b border-blue-700 font-bold uppercase tracking-wider">
+                        <th class="p-3 text-left">Deskripsi Pesanan</th>
                         <th class="p-3 text-center w-20">Qty</th>
                         <th class="p-3 text-right w-32">Subtotal</th>
                     </tr>
@@ -462,7 +468,8 @@
         function addItem() {
             const container = document.getElementById('items-container');
             const newRow = document.createElement('div');
-            newRow.className = 'item-row grid grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100';
+            // Mengubah grid-cols-4 menjadi responsif agar baris baru ikut melipat rapi di HP
+            newRow.className = 'item-row grid grid-cols-1 md:grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100';
             newRow.innerHTML = `
                 <input type="text" placeholder="Nama Barang" class="item-name p-3 rounded-xl border outline-none">
                 <input type="text" placeholder="Qty" class="qty p-3 rounded-xl border outline-none" oninput="formatInputRupiah(this); hitungTotal()">
@@ -866,7 +873,6 @@
             }
         }
     
-        // FUNGSI CETAK LOGIKA BARU
         function cetakNotaStruk(id, isForceLunas) {
             const item = globalDataCache.riwayatNota.find(r => r[0].toString() === id.toString());
             if(!item) return;
@@ -874,30 +880,29 @@
             const fmt = (val) => "Rp " + Number(val || 0).toLocaleString('id-ID');
             const totalBayar = Number(item[3] || 0);
             
-            // Logika Paksa Lunas jika klik Lunas, kalau ndak pakai yang asli
             let dpBayar = isForceLunas ? totalBayar : Number(item[4] || 0);
             let sisaHutang = isForceLunas ? 0 : Number(item[5] || 0);
             
-            // Header Nota
             document.getElementById('print-cust').innerText = item[1];
-            document.getElementById('print-tgl').innerText = new Date(item[7]).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+            const tglFormatted = new Date(item[7]).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+            document.getElementById('print-tgl').innerText = tglFormatted;
             
-            // Isi Tabel
             parseItemsToPrintRows(item[2], totalBayar);
             
             document.getElementById('print-total').innerText = fmt(totalBayar);
+            document.getElementById('print-dp').innerText = "- " + fmt(dpBayar);
+            document.getElementById('print-sisa').innerText = fmt(sisaHutang);
             
-            if (sisaHutang > 0) {
-                // Tampilan Nota Awal (Ada hutang)
-                document.getElementById('print-dp').innerText = "- " + fmt(dpBayar);
-                document.getElementById('print-sisa').innerText = fmt(sisaHutang);
-            } else {
-                // Tampilan Nota Pelunasan (Lunas)
-                document.getElementById('print-dp').innerText = "- " + fmt(dpBayar); 
-                document.getElementById('print-sisa').innerText = "Rp 0";
-            }
+            // LOGIKA NAMA FILE PDF: Merubah judul dokumen sementara menjadi Nama_Tanggal sebelum print
+            const oldTitle = document.title;
+            const cleanCustName = item[1].replace(/[^a-zA-Z0-9]/g, "_");
+            const cleanDate = new Date(item[7]).toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'}).replace(/\//g, "-");
+            document.title = `${cleanCustName}_${cleanDate}`;
             
             window.print();
+            
+            // Kembalikan judul tab browser asli setelah cetak selesai
+            setTimeout(() => { document.title = oldTitle; }, 1000);
         }
 
         function simpanDanCetak() {
@@ -925,7 +930,8 @@
 
             const total = parseRupiah(document.getElementById('grandTotal').innerText);
             const dpVal = parseRupiah(document.getElementById('inputDP').value || 0);
-            const sisaVal = total - dpVal;
+            // Dikunci menggunakan Math.max agar sisa tagihan tidak pernah bernilai minus (-) jika DP-nya lunas/lebih
+            const sisaVal = Math.max(0, total - dpVal);
 
             const fmt = (val) => "Rp " + Number(val).toLocaleString('id-ID');
 
@@ -936,7 +942,14 @@
             document.getElementById('print-dp').innerText = "- " + fmt(dpVal);
             document.getElementById('print-sisa').innerText = fmt(sisaVal);
 
+            const cName = custName.replace(/[^a-zA-Z0-9]/g, "_");
+            const cDate = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'}).replace(/\//g, "-");
+            const originalTitle = document.title;
+            document.title = `${cName}_${cDate}`;
+            
             window.print();
+            setTimeout(() => { document.title = originalTitle; }, 1000);
+
             simpanData();
         }
 
@@ -951,12 +964,18 @@
             document.getElementById('custName').value = ''; document.getElementById('inputDP').value = '';
             isManualDP = false; // Reset pelacakan manual DP
             document.getElementById('items-container').innerHTML = `
-                <div class="item-row grid grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <input type="text" placeholder="Barang" class="item-name p-3 rounded-xl border outline-none">
+                <div class="item-row grid grid-cols-1 md:grid-cols-4 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <input type="text" placeholder="Nama Barang" class="item-name p-3 rounded-xl border outline-none">
                     <input type="text" placeholder="Qty" class="qty p-3 rounded-xl border outline-none" oninput="formatInputRupiah(this); hitungTotal()">
                     <input type="text" placeholder="Harga" class="price p-3 rounded-xl border outline-none" oninput="formatInputRupiah(this); hitungTotal()"><span class="subtotal-text font-bold text-right text-slate-800">Rp 0</span>
                 </div>`;
-            hitungTotal(); showPage('dashboard');
+            
+            // Form dihitung ulang jadi Rp 0 kembali bersih
+            hitungTotal(); 
+            
+            // Pengaman cloud: Tetap lakukan penyegaran data dashboard di background tanpa memindahkan halaman aktif kasir
+            const btnInput = document.querySelector("nav a[onclick*='input']");
+            showPage('input', btnInput);
         }
 
         window.onload = function() {
