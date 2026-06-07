@@ -808,6 +808,9 @@
 
         function kirimWhatsAppEstimasi() {
             const name = document.getElementById('waCustName').value || 'Pelanggan'; 
+            const bonusSelect = document.getElementById('waBonusPaket');
+    const bonusText = bonusSelect.options[bonusSelect.selectedIndex].text; // Mengambil teks (cth: "Paket Hemat (+Rp 5.000)")
+    const bonusVal = bonusSelect.value; // Mengambil nilai angka
             let strings = []; 
             document.querySelectorAll('.est-item-row').forEach(row => {
                 const n = row.querySelector('.est-name').value; 
