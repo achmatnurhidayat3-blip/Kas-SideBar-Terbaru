@@ -206,9 +206,9 @@
                 <input type="text" id="waCustName" placeholder="Nama Calon Pelanggan" class="w-full p-4 border rounded-2xl outline-none">
                 <select id="waBonusPaket" onchange="hitungEstimasi()" class="w-full p-4 border rounded-2xl bg-white">
                     <option value="0">--- Tanpa Paket Bonus ---</option>
-                    <option value="0">Free Desain, Free Plastik</option>
+                    <option value="0">Free Desain, Free pastik</option>
                     <option value="0">Free Desain, Free Label + Cetak Nama, Free Plastik</option>
-                    <option value="0">Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital</option>
+                     <option value="0">Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital</option>
                 </select>
                 <div id="est-items-container" class="space-y-4">
                     <div class="est-item-row grid grid-cols-3 gap-4 items-center bg-slate-50 p-4 rounded-2xl">
@@ -815,7 +815,7 @@
                 const p = parseRupiah(row.querySelector('.est-price').value);
                 if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
             });
-            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih banyak kak! ✨`;
+            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih! ✨`;
             
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
