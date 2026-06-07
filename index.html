@@ -204,12 +204,6 @@
             <div class="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
                 <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">Kalkulator Estimasi Harga</h2>
                 <input type="text" id="waCustName" placeholder="Nama Calon Pelanggan" class="w-full p-4 border rounded-2xl outline-none">
-              <select id="waBonusPaket" onchange="hitungEstimasi()" class="w-full p-4 border rounded-2xl bg-white">
-    <option value="0">--- Tanpa Paket Bonus ---</option>
-    <option value="Free Desain, Free Plastik">Free Desain, Free Plastik</option>
-    <option value="Free Desain, Free Label + Cetak Nama, Free Plastik">Free Desain, Free Label + Cetak Nama, Free Plastik</option>
-    <option value="Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital">Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital</option>
-</select>
                 <div id="est-items-container" class="space-y-4">
                     <div class="est-item-row grid grid-cols-3 gap-4 items-center bg-slate-50 p-4 rounded-2xl">
                         <input type="text" placeholder="Nama Barang" class="est-name p-3 rounded-xl border outline-none">
@@ -807,29 +801,19 @@
         async function deletePengeluaran(id) { if(confirm("Hapus catatan ini?")) { setLoading(true); await sendPost({ tipe: "HapusPengeluaran", id: id }); } }
 
         function kirimWhatsAppEstimasi() {
-    const name = document.getElementById('waCustName').value || 'Pelanggan'; 
-    const bonusSelect = document.getElementById('waBonusPaket');
-    
-    // Mengambil teks yang dipilih
-    const bonusText = bonusSelect.options[bonusSelect.selectedIndex].text;
-    const bonusVal = bonusSelect.value; 
+            const name = document.getElementById('waCustName').value || 'Pelanggan'; 
+            let strings = []; 
+            document.querySelectorAll('.est-item-row').forEach(row => {
+                const n = row.querySelector('.est-name').value; 
+                const q = parseRupiah(row.querySelector('.est-qty').value); 
+                const p = parseRupiah(row.querySelector('.est-price').value);
+                if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
+            });
+            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih banyak kak! ✨`;
+            
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
 
-    let strings = []; 
-    document.querySelectorAll('.est-item-row').forEach(row => {
-        const n = row.querySelector('.est-name').value; 
-        const q = parseRupiah(row.querySelector('.est-qty').value); 
-        const p = parseRupiah(row.querySelector('.est-price').value);
-        if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
-    });
-
-    // Membuat baris tambahan untuk bonus jika dipilih
-    const infoBonus = (bonusVal !== "0") ? `\n*Paket Bonus:* ${bonusText}` : "";
-
-    // Memasukkan infoBonus ke dalam template text
-    const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:${infoBonus}\n\n*Item Pesanan:*\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih! ✨`;
-    
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-}
         function parseItemsToPrintRows(itemsString, fallbackTotal) {
             const tbody = document.getElementById('print-items-tbody');
             tbody.innerHTML = '';
