@@ -815,7 +815,7 @@
                 const p = parseRupiah(row.querySelector('.est-price').value);
                 if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
             });
-            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih banyak kak! ✨`;
+            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih kak! ✨`;
             
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
