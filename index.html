@@ -204,6 +204,12 @@
             <div class="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
                 <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">Kalkulator Estimasi Harga</h2>
                 <input type="text" id="waCustName" placeholder="Nama Calon Pelanggan" class="w-full p-4 border rounded-2xl outline-none">
+                <select id="waBonusPaket" onchange="hitungEstimasi()" class="w-full p-4 border rounded-2xl bg-white">
+                    <option value="0">--- Tanpa Paket Bonus ---</option>
+                    <option value="0">Free Desain, Plastik</option>
+                    <option value="0">Free Desain, Plastik, Label+Cetak Nama</option>
+                    <option value="0">Free Desain, Plastik, Label+Cetak Nama, Undangan Digital</option>
+                </select>
                 <div id="est-items-container" class="space-y-4">
                     <div class="est-item-row grid grid-cols-3 gap-4 items-center bg-slate-50 p-4 rounded-2xl">
                         <input type="text" placeholder="Nama Barang" class="est-name p-3 rounded-xl border outline-none">
