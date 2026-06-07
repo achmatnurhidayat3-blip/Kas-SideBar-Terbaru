@@ -49,7 +49,7 @@
 <body class="bg-slate-100 flex flex-col lg:flex-row text-slate-700">
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyiqoysEUeuAkzKcR1XzuPlxJ2txBUrQumOL_l6StKG_X5PEGQXm4VI48DHKd66nJW4Rw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbx_nYr5DVtxrOiJvXaYImL-lLhRedWBuTQCZ63ABGev9gbIpweZjB7lQZMc1-s5hd8i/exec";
         const LOGO_URL = "https://lh3.googleusercontent.com/d/1F055wulsiC-LDjW_NMZ4yXsMSCDj53TW"; 
     </script>
 
@@ -204,12 +204,12 @@
             <div class="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
                 <h2 class="text-2xl font-bold text-slate-800 border-b pb-2">Kalkulator Estimasi Harga</h2>
                 <input type="text" id="waCustName" placeholder="Nama Calon Pelanggan" class="w-full p-4 border rounded-2xl outline-none">
-                <select id="waBonusPaket" onchange="hitungEstimasi()" class="w-full p-4 border rounded-2xl bg-white">
-                    <option value="0">--- Tanpa Paket Bonus ---</option>
-                    <option value="0">Free Desain, Free pastik</option>
-                    <option value="0">Free Desain, Free Label + Cetak Nama, Free Plastik</option>
-                     <option value="0">Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital</option>
-                </select>
+              <select id="waBonusPaket" onchange="hitungEstimasi()" class="w-full p-4 border rounded-2xl bg-white">
+    <option value="0">--- Tanpa Paket Bonus ---</option>
+    <option value="Free Desain, Free Plastik">Free Desain, Free Plastik</option>
+    <option value="Free Desain, Free Label + Cetak Nama, Free Plastik">Free Desain, Free Label + Cetak Nama, Free Plastik</option>
+    <option value="Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital">Free Desain, Free Label + Cetak Nama, Free Plastik, Free Undangan Digital</option>
+</select>
                 <div id="est-items-container" class="space-y-4">
                     <div class="est-item-row grid grid-cols-3 gap-4 items-center bg-slate-50 p-4 rounded-2xl">
                         <input type="text" placeholder="Nama Barang" class="est-name p-3 rounded-xl border outline-none">
@@ -807,22 +807,29 @@
         async function deletePengeluaran(id) { if(confirm("Hapus catatan ini?")) { setLoading(true); await sendPost({ tipe: "HapusPengeluaran", id: id }); } }
 
         function kirimWhatsAppEstimasi() {
-            const name = document.getElementById('waCustName').value || 'Pelanggan'; 
-            const bonusSelect = document.getElementById('waBonusPaket');
-    const bonusText = bonusSelect.options[bonusSelect.selectedIndex].text; // Mengambil teks (cth: "Paket Hemat (+Rp 5.000)")
-    const bonusVal = bonusSelect.value; // Mengambil nilai angka
-            let strings = []; 
-            document.querySelectorAll('.est-item-row').forEach(row => {
-                const n = row.querySelector('.est-name').value; 
-                const q = parseRupiah(row.querySelector('.est-qty').value); 
-                const p = parseRupiah(row.querySelector('.est-price').value);
-                if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
-            });
-            const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih! ✨`;
-            
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-        }
+    const name = document.getElementById('waCustName').value || 'Pelanggan'; 
+    const bonusSelect = document.getElementById('waBonusPaket');
+    
+    // Mengambil teks yang dipilih
+    const bonusText = bonusSelect.options[bonusSelect.selectedIndex].text;
+    const bonusVal = bonusSelect.value; 
 
+    let strings = []; 
+    document.querySelectorAll('.est-item-row').forEach(row => {
+        const n = row.querySelector('.est-name').value; 
+        const q = parseRupiah(row.querySelector('.est-qty').value); 
+        const p = parseRupiah(row.querySelector('.est-price').value);
+        if(n) strings.push(`- ${n} (Qty: ${q} x Rp ${Number(p).toLocaleString('id-ID')})`);
+    });
+
+    // Membuat baris tambahan untuk bonus jika dipilih
+    const infoBonus = (bonusVal !== "0") ? `\n*Paket Bonus:* ${bonusText}` : "";
+
+    // Memasukkan infoBonus ke dalam template text
+    const text = `Halo Kak *${name}*,\n\nBerikut rincian estimasi harga pesanan cetak di *Asheeqa Printing*:${infoBonus}\n\n*Item Pesanan:*\n${strings.join("\n")}\n\n*Total:* ${document.getElementById('estTotal').innerText}\n*DP 50%:* ${document.getElementById('estDP').innerText}\n*Sisa Pelunasan:* ${document.getElementById('estSisa').innerText}\n\nTerima kasih! ✨`;
+    
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+}
         function parseItemsToPrintRows(itemsString, fallbackTotal) {
             const tbody = document.getElementById('print-items-tbody');
             tbody.innerHTML = '';
